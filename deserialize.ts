@@ -25,6 +25,13 @@ function _deserialize<T>(json: { [key: string]: any }, ctor: new () => T): {
 
     const fieldErrors = [...fields].map(fieldName => {
         // field value from raw json
+        if (!(<Object>json).hasOwnProperty(fieldName)) {
+            return {
+                fieldName: fieldName,
+                errors: ["field does not exist in source json"],
+            };
+        }
+
         let fieldVal = json[fieldName];
         // field metadata list, some of them should be the value constraints
         const fieldAttributes: string[] = Reflect.getOwnMetadataKeys(ctor.prototype, fieldName);
