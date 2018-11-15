@@ -17,6 +17,7 @@ function _deserialize<T>(json: { [key: string]: any }, ctor: new () => T): {
     result: T;
 } {
     throwOnFalse(ctor.length === 0, "constructor must takes no input");
+    throwOnFalse(json instanceof Object, "json input must be an object or array");
 
     const result = new ctor();
     // get all fields that needs to be deserialized and validated
@@ -24,7 +25,7 @@ function _deserialize<T>(json: { [key: string]: any }, ctor: new () => T): {
 
     const fieldErrors = [...fields].map(fieldName => {
         // field value from raw json
-        const fieldVal = json[fieldName];
+        let fieldVal = json[fieldName];
         // field metadata list, some of them should be the value constraints
         const fieldAttributes: string[] = Reflect.getOwnMetadataKeys(ctor.prototype, fieldName);
         const errorMessages: string[] = [];
@@ -34,9 +35,26 @@ function _deserialize<T>(json: { [key: string]: any }, ctor: new () => T): {
             // TODO, alert to turn on emitDecoratorMetadata if no design:type is found
             if (attr === typeMetadataKey) {
                 // if attr is design:type, which every field should have
-                if (!validateType(fieldVal, attrVal)) {
-                    // TODO, show expected type name here
-                    errorMessages.push("value type is incorrect");
+                if (isPrimitiveType(attrVal)) {
+                    if (!validatePrimitiveType(fieldVal, attrVal)) {
+                        // TODO, show expected type name here
+                        errorMessages.push("value type is incorrect");
+                    }
+                } else {
+                    // field type is an embeded object, do recursive deserialization
+                    if (fieldVal instanceof Object) {
+                        const embededResult = _deserialize(fieldVal, attrVal);
+                        // merge embeded field errors
+                        for (let embededFieldError of embededResult.fieldErrors) {
+                            if (embededFieldError.errors.length) {
+                                errorMessages.push(`${embededFieldError.fieldName}: `);
+                                embededFieldError.errors.forEach(e => errorMessages.push(`    ${e}`));
+                            }
+                        }
+                        fieldVal = embededResult.result;
+                    } else {
+                        errorMessages.push("for embeded field, the json value must be an object");
+                    }
                 }
             } else if (isConstraintHandler(attrVal)) {
                 // check customized validation (field value constraint)
@@ -71,13 +89,17 @@ type FieldErrors = {
 
 function fieldErrorToStringLines(fieldError: FieldErrors): string[] {
     if (fieldError.errors.length) {
-        return [fieldError.fieldName].concat(fieldError.errors.map(e => `    ${e}`));
+        return [fieldError.fieldName + ":"].concat(fieldError.errors.map(e => `    ${e}`));
     } else {
         return [];
     }
 }
 
-function validateType(val: any, type: any): boolean {
+function isPrimitiveType(type: any): boolean {
+    return [String, Number, Boolean].some(t => t === type);
+}
+
+function validatePrimitiveType(val: any, type: any): boolean {
     switch (type) {
         case String:
             return typeof val === "string";
@@ -86,7 +108,6 @@ function validateType(val: any, type: any): boolean {
         case Boolean:
             return typeof val === "boolean";
         default:
-            // some other constructor function
-            return val instanceof type;
+            return false;
     }
 }
