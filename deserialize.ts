@@ -42,11 +42,13 @@ function _deserialize<T>(json: { [key: string]: any }, ctor: new () => T): {
             // TODO, alert to turn on emitDecoratorMetadata if no design:type is found
             if (attr === typeMetadataKey) {
                 // if attr is design:type, which every field should have
-                if (isPrimitiveType(attrVal)) {
-                    if (!validatePrimitiveType(fieldVal, attrVal)) {
-                        // TODO, show expected type name here
-                        errorMessages.push("value type is incorrect");
+                const primTypeName = getPrimitiveTypeName(attrVal);
+                if (primTypeName) {
+                    if (typeof fieldVal !== primTypeName) {
+                        errorMessages.push(`value type is incorrect, ${primTypeName} is expected`);
                     }
+                } else if (attrVal === Array) {
+                    errorMessages.push("array field not supported yet");
                 } else {
                     // field type is an embeded object, do recursive deserialization
                     if (fieldVal instanceof Object) {
@@ -102,19 +104,15 @@ function fieldErrorToStringLines(fieldError: FieldErrors): string[] {
     }
 }
 
-function isPrimitiveType(type: any): boolean {
-    return [String, Number, Boolean].some(t => t === type);
-}
-
-function validatePrimitiveType(val: any, type: any): boolean {
+function getPrimitiveTypeName(type: any): "string" | "number" | "boolean" | "" {
     switch (type) {
         case String:
-            return typeof val === "string";
+            return "string";
         case Number:
-            return typeof val === "number";
+            return "number";
         case Boolean:
-            return typeof val === "boolean";
+            return "boolean";
         default:
-            return false;
+            return "";
     }
 }
