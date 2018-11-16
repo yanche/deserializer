@@ -24,12 +24,12 @@ class Config {
 
 const result = fromObject<Config>({
     field1: "a",
-    field2: 3.2,
+    field2: 2,
     field3: true,
     field4: 1,
     embededField: {
         field1: "a",
-        field2: 3.5,
+        field2: 35,
     }
 }, Config);
 
