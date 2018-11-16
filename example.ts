@@ -1,28 +1,28 @@
 
-import { Constraints } from "./constraints";
 import { fromObject } from "./index";
+import { nonEmptyString, range, field, optional } from "./constraints";
 
 
 class Config2 {
-    @Constraints.nonEmptyString
+    @nonEmptyString
     public readonly field1: string;
-    @Constraints.range(-1, 5)
+    @range(-1, 5)
     public readonly field2: number;
 }
 
 class Config {
-    @Constraints.nonEmptyString
+    @nonEmptyString
     public readonly field1: string;
-    @Constraints.range(2, 10)
+    @range(2, 10)
     public readonly field2: number;
-    @Constraints.field
+    @field
     public readonly field3: boolean;
     public readonly field4: string[];
-    @Constraints.field
+    @field
     public readonly embededField: Config2;
-    @Constraints.optional()
+    @optional()
     public readonly optNoDefault: string;
-    @Constraints.optional(12)
+    @optional(12)
     public readonly optDefault: number;
 }
 
