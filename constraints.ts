@@ -18,9 +18,13 @@ export function isConstraintHandler(val: any): val is ConstraintHandler {
 // that is called the meta programming of meta programming :)
 export class Constraints {
     /**
-     * To simply mark the field as de-serialize-able.
+     * To simply mark the field as de-serialize-able. This is the base of every other field validators, will be called for every field decorator.
      */
     public static field(target: any, fieldName: string) {
+        if (!Reflect.hasMetadata(typeMetadataKey, target, fieldName)) {
+            throw new Error("to use metadata for fields validation, please turn on emitDecoratorMetadata and experimentalDecorators as ts compiler option");
+        }
+
         // do nothing, just to put the metadata design:type
         if (!Reflect.hasOwnMetadata(fieldsMetadataKey, target)) {
             // first time calling, create the fields set
@@ -44,8 +48,6 @@ export class Constraints {
             },
             message: "value must be non empty string",
         }, target, fieldName);
-
-        Constraints.field(target, fieldName);
     }
 
     /**
@@ -64,8 +66,6 @@ export class Constraints {
                 },
                 message: `value must be greater than or equal to ${minVal}`,
             }, target, fieldName);
-
-            Constraints.field(target, fieldName);
         };
     }
 
@@ -85,8 +85,6 @@ export class Constraints {
                 },
                 message: `value must be less than or equal to ${maxVal}`,
             }, target, fieldName);
-
-            Constraints.field(target, fieldName);
         };
     }
 
@@ -108,8 +106,6 @@ export class Constraints {
                 },
                 message: `value must be between ${minVal} and ${maxVal}`,
             }, target, fieldName);
-
-            Constraints.field(target, fieldName);
         };
     }
 }
@@ -149,7 +145,11 @@ export function forType(options: {
 
 function proxyDecoratorFnToCheckType(originalDecoratorFn: (target: any, fieldName: string) => any, expectedType: any, typeName: string, constraintName: string) {
     return (target: any, fieldName: string) => {
+        // call the base "field" decorator, to register field
+        Constraints.field(target, fieldName);
+        // check validator availability
         throwOnFalse(Reflect.getMetadata(typeMetadataKey, target, fieldName) === expectedType, `constraint ${constraintName} only applies to field type: ${typeName}`);
+        // apply validator
         return originalDecoratorFn(target, fieldName);
     }
 }

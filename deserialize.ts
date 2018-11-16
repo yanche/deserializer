@@ -33,11 +33,6 @@ function _deserialize<T>(json: { [key: string]: any }, ctor: new () => T): {
             };
         }
 
-        if (!Reflect.hasOwnMetadata(typeMetadataKey, ctor.prototype, fieldName)) {
-            // TODO, move this check to ealier stage when running decorator, not deserialization
-            throw new Error("to use metadata for fields validation, please turn on emitDecoratorMetadata and experimentalDecorators as ts compiler option");
-        }
-
         const { error: typeError, fieldVal: fieldVal } = validateValueType(json[fieldName], Reflect.getOwnMetadata(typeMetadataKey, ctor.prototype, fieldName));
         if (typeError) {
             // emit type error
