@@ -6,7 +6,6 @@ class Constraints {
      */
     @forType({
         type: String,
-        typeName: "string",
     })
     public static nonEmptyString(target: any, fieldName: string) {
         Reflect.defineMetadata("nonEmptyString", <ConstraintHandler>{

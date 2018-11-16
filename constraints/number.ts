@@ -7,7 +7,6 @@ class Constraints {
      */
     @forType({
         type: Number,
-        typeName: "number",
         isFactory: true,
     })
     public static min(minVal: number) {
@@ -26,7 +25,6 @@ class Constraints {
      */
     @forType({
         type: Number,
-        typeName: "number",
         isFactory: true,
     })
     public static max(maxVal: number) {
@@ -45,7 +43,6 @@ class Constraints {
      */
     @forType({
         type: Number,
-        typeName: "number",
         isFactory: true,
     })
     public static range(minVal: number, maxVal: number) {

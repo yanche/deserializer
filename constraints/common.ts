@@ -1,4 +1,4 @@
-import { typeMetadataKey, throwOnFalse } from "../common";
+import { typeMetadataKey, throwOnFalse, getPrimitiveTypeName } from "../common";
 import { field } from "./others";
 
 export type ConstraintHandler = {
@@ -14,7 +14,6 @@ export type ConstraintHandler = {
  */
 export function forType(options: {
     type: any;
-    typeName: string;
     isFactory?: boolean;
 }) {
     return (_target: any, constraintName: string, descriptor: PropertyDescriptor) => {
@@ -25,10 +24,10 @@ export function forType(options: {
             replaceFn = (...args: any[]) => {
                 // the decorator function that will be generated with original decorator factory
                 const originalFnByFactory = originalFn.apply(undefined, args);
-                return proxyDecoratorFnToCheckType(originalFnByFactory, options.type, options.typeName, constraintName);
+                return proxyDecoratorFnToCheckType(originalFnByFactory, options.type, constraintName);
             };
         } else {
-            replaceFn = proxyDecoratorFnToCheckType(<any>originalFn, options.type, options.typeName, constraintName);
+            replaceFn = proxyDecoratorFnToCheckType(<any>originalFn, options.type, constraintName);
         }
 
         // give the replacement function same name
@@ -41,12 +40,12 @@ export function forType(options: {
     };
 }
 
-function proxyDecoratorFnToCheckType(originalDecoratorFn: (target: any, fieldName: string) => any, expectedType: any, typeName: string, constraintName: string) {
+function proxyDecoratorFnToCheckType(originalDecoratorFn: (target: any, fieldName: string) => any, expectedType: any, constraintName: string) {
     return (target: any, fieldName: string) => {
         // call the base "field" decorator, to register field
         field(target, fieldName);
         // check validator availability
-        throwOnFalse(Reflect.getMetadata(typeMetadataKey, target, fieldName) === expectedType, `constraint ${constraintName} only applies to field type: ${typeName}`);
+        throwOnFalse(Reflect.getMetadata(typeMetadataKey, target, fieldName) === expectedType, `constraint "${constraintName}" can only apply to field type: ${getPrimitiveTypeName(expectedType) || expectedType.name}`);
         // apply validator
         return originalDecoratorFn(target, fieldName);
     }
