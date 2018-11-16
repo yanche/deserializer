@@ -1,5 +1,5 @@
 
-import { fieldsMetadataKey, typeMetadataKey, throwOnFalse } from "./common";
+import { fieldsMetadataKey, typeMetadataKey, throwOnFalse, optionalFieldMetadataKey, OptionalFieldMetadata, getPrimitiveTypeName } from "./common";
 
 export type ConstraintHandler = {
     // to process the constraint, validate the input value
@@ -112,6 +112,29 @@ export class Constraints {
                     return minVal <= val && val <= maxVal;
                 },
                 message: `value must be between ${minVal} and ${maxVal}`,
+            }, target, fieldName);
+        };
+    }
+
+    /**
+     * To mark the field as optional, with or without a default value.
+     */
+    public static optional(defaultVal?: any) {
+        const hasDefault = arguments.length === 1;
+        return (target: any, fieldName: string) => {
+            Constraints.field(target, fieldName);
+
+            if (hasDefault) {
+                const fieldType = Reflect.getOwnMetadata(typeMetadataKey, target, fieldName);
+                const fieldPrimTypeName = getPrimitiveTypeName(fieldType);
+                if (typeof defaultVal !== fieldPrimTypeName && !(defaultVal instanceof fieldType)) {
+                    throw new Error(`${fieldName}: default value must be the same type as field`);
+                }
+            }
+
+            Reflect.defineMetadata(optionalFieldMetadataKey, <OptionalFieldMetadata>{
+                hasDefaultVal: hasDefault,
+                defaultVal: defaultVal,
             }, target, fieldName);
         };
     }

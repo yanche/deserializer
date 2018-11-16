@@ -20,6 +20,10 @@ class Config {
     public readonly field4: string[];
     @Constraints.field
     public readonly embededField: Config2;
+    @Constraints.optional()
+    public readonly optNoDefault: string;
+    @Constraints.optional(12)
+    public readonly optDefault: number;
 }
 
 const result = fromObject<Config>({
@@ -29,8 +33,10 @@ const result = fromObject<Config>({
     field4: 1,
     embededField: {
         field1: "a",
-        field2: 35,
-    }
+        field2: 3.5,
+    },
+    optNoDefault: "asd",
+    optDefault: 13
 }, Config);
 
 console.info(result);

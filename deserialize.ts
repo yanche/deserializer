@@ -1,6 +1,6 @@
 
 import "reflect-metadata";
-import { fieldsMetadataKey, typeMetadataKey, throwOnFalse, flatten } from "./common";
+import { optionalFieldMetadataKey, OptionalFieldMetadata, fieldsMetadataKey, typeMetadataKey, throwOnFalse, flatten, getPrimitiveTypeName } from "./common";
 import { isConstraintHandler } from "./constraints";
 
 export function deserialize<T>(json: { [key: string]: any }, ctor: new () => T): T {
@@ -25,15 +25,30 @@ function _deserialize<T>(json: { [key: string]: any }, ctor: new () => T): {
 
     const fieldErrors = [...fields].map(fieldName => {
         // field value from raw json
+        let fieldRawVal = json[fieldName];
+
         if (!(<Object>json).hasOwnProperty(fieldName)) {
-            // TODO, optional fields and default value
-            return {
-                fieldName: fieldName,
-                errors: ["field does not exist in source json"],
-            };
+            // if field does not exist in source json, throw on required field, use default value for optional field
+            if (Reflect.hasOwnMetadata(optionalFieldMetadataKey, ctor.prototype, fieldName)) {
+                // optional field
+                const { defaultVal, hasDefaultVal } = <OptionalFieldMetadata>Reflect.getOwnMetadata(optionalFieldMetadataKey, ctor.prototype, fieldName);
+                if (hasDefaultVal) {
+                    fieldRawVal = defaultVal;
+                } else {
+                    // skip this field
+                    return null;
+                }
+            } else {
+                // required field
+                return {
+                    fieldName: fieldName,
+                    errors: ["required field does not exist in source json"],
+                };
+            }
         }
 
-        const { error: typeError, fieldVal: fieldVal } = validateValueType(json[fieldName], Reflect.getOwnMetadata(typeMetadataKey, ctor.prototype, fieldName));
+        const fieldType = Reflect.getOwnMetadata(typeMetadataKey, ctor.prototype, fieldName);
+        const { error: typeError, fieldVal: fieldVal } = validateValueType(fieldRawVal, fieldType);
         if (typeError) {
             // emit type error
             return {
@@ -78,7 +93,7 @@ function _deserialize<T>(json: { [key: string]: any }, ctor: new () => T): {
     };
 }
 
-function validateValueType(fieldVal: any, fieldType: any): {
+function validateValueType(fieldRawVal: any, fieldType: any): {
     // string: field error, FieldErrors[]: inner fields error
     error?: string | FieldErrors[];
     fieldVal?: any;
@@ -87,17 +102,17 @@ function validateValueType(fieldVal: any, fieldType: any): {
     const primTypeName = getPrimitiveTypeName(fieldType);
     if (primTypeName) {
         // fieldType is 1 of 3 primitive types
-        if (typeof fieldVal !== primTypeName) {
+        if (typeof fieldRawVal !== primTypeName) {
             return { error: `value type is incorrect, ${primTypeName} is expected` };
         } else {
-            return { fieldVal: fieldVal };
+            return { fieldVal: fieldRawVal };
         }
     } else if ([Object, Array, Function, undefined].some(t => t === fieldType)) {
         throw new Error("defensive code, impossible code path, unallowed fields: plain-object/array/function/void should already been checked at decorating stage");
     } else {
         // field type is object, do recursive deserialization
-        if (fieldVal instanceof Object) {
-            const embededResult = _deserialize(fieldVal, fieldType);
+        if (fieldRawVal instanceof Object) {
+            const embededResult = _deserialize(fieldRawVal, fieldType);
             if (embededResult.fieldErrors.length > 0) {
                 return { error: embededResult.fieldErrors };
             } else {
@@ -106,20 +121,6 @@ function validateValueType(fieldVal: any, fieldType: any): {
         } else {
             return { error: `value type is incorrect, object is expected` };
         }
-    }
-}
-
-function getPrimitiveTypeName(type: any): "string" | "number" | "boolean" | "" {
-    switch (type) {
-        case String:
-            return "string";
-        case Number:
-            return "number";
-        case Boolean:
-            return "boolean";
-        default:
-            // not primitive type
-            return "";
     }
 }
 
