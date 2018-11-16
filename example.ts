@@ -17,7 +17,7 @@ class Config {
     public readonly field2: number;
     @Constraints.field
     public readonly field3: boolean;
-    public readonly field4: number;
+    public readonly field4: string[];
     @Constraints.field
     public readonly embededField: Config2;
 }

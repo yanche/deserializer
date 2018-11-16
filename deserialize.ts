@@ -92,15 +92,8 @@ function validateValueType(fieldVal: any, fieldType: any): {
         } else {
             return { fieldVal: fieldVal };
         }
-    } else if (fieldType === Array) {
-        // TODO, alert on array/function field at decorator running time, before deserial
-        return { error: "array field not supported yet" };
-    } else if (fieldType === Function) {
-        // TODO, alert on array/function field at decorator running time, before deserialization
-        return { error: "function field not supported yet" };
-    } else if (fieldType === undefined) {
-        // TODO, alert on array/function field at decorator running time, before deserialization
-        return { error: "void field not supported yet" };
+    } else if ([Object, Array, Function, undefined].some(t => t === fieldType)) {
+        throw new Error("defensive code, impossible code path, unallowed fields: plain-object/array/function/void should already been checked at decorating stage");
     } else {
         // field type is object, do recursive deserialization
         if (fieldVal instanceof Object) {

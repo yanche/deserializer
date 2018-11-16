@@ -21,11 +21,18 @@ export class Constraints {
      * To simply mark the field as de-serialize-able. This is the base of every other field validators, will be called for every field decorator.
      */
     public static field(target: any, fieldName: string) {
-        if (!Reflect.hasMetadata(typeMetadataKey, target, fieldName)) {
+        // check ts option to emit metadata is on
+        if (!Reflect.hasOwnMetadata(typeMetadataKey, target, fieldName)) {
             throw new Error("to use metadata for fields validation, please turn on emitDecoratorMetadata and experimentalDecorators as ts compiler option");
         }
 
-        // do nothing, just to put the metadata design:type
+        // check type field is acceptable (array & function is not allowed at this moment)
+        const fieldType = Reflect.getOwnMetadata(typeMetadataKey, target, fieldName);
+        if ([Object, Array, Function, undefined].some(t => t === fieldType)) {
+            throw new Error(`${fieldName}: plain-object, array, function and void are not allowed at this moment as field type`);
+        }
+
+        // put the metadata class_fields, so that we have a list of validate-able fields
         if (!Reflect.hasOwnMetadata(fieldsMetadataKey, target)) {
             // first time calling, create the fields set
             Reflect.defineMetadata(fieldsMetadataKey, new Set<string>(), target);
