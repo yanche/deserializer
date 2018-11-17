@@ -1,7 +1,7 @@
 
 import "reflect-metadata";
 import { optionalFieldMetadataKey, OptionalFieldMetadata, fieldsMetadataKey, typeMetadataKey, throwOnFalse, flatten, getPrimitiveTypeName } from "./common";
-import { isConstraintHandler } from "./constraints";
+import { isConstraintValidator } from "./constraints";
 
 export function deserialize<T>(json: { [key: string]: any }, ctor: new () => T): T {
     const innerResult = _deserialize(json, ctor);
@@ -65,9 +65,9 @@ function _deserialize<T>(json: { [key: string]: any }, ctor: new () => T): {
 
         for (const attr of fieldAttributes) {
             const attrVal = Reflect.getOwnMetadata(attr, ctor.prototype, fieldName);
-            if (isConstraintHandler(attrVal)) {
+            if (isConstraintValidator(attrVal)) {
                 // check customized validation (field value constraint)
-                if (!attrVal.validator(fieldVal)) {
+                if (!attrVal.validate(fieldVal)) {
                     errorMessages.push(attrVal.message);
                 }
             }

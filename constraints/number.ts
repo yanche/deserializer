@@ -1,5 +1,6 @@
-import { forType } from "./common";
+import { forType, decoratorFnFromValidator } from "./common";
 import { throwOnFalse } from "../common";
+import * as numValidators from "../validators/number";
 
 class Constraints {
     /**
@@ -10,14 +11,7 @@ class Constraints {
         isFactory: true,
     })
     public static min(minVal: number) {
-        return (target: any, fieldName: string) => {
-            Reflect.defineMetadata("min", {
-                validator: (val: number) => {
-                    return val >= minVal;
-                },
-                message: `value must be greater than or equal to ${minVal}`,
-            }, target, fieldName);
-        };
+        return decoratorFnFromValidator(numValidators.min(minVal));
     }
 
     /**
@@ -28,14 +22,7 @@ class Constraints {
         isFactory: true,
     })
     public static max(maxVal: number) {
-        return (target: any, fieldName: string) => {
-            Reflect.defineMetadata("max", {
-                validator: (val: number) => {
-                    return val <= maxVal;
-                },
-                message: `value must be less than or equal to ${maxVal}`,
-            }, target, fieldName);
-        };
+        return decoratorFnFromValidator(numValidators.max(maxVal));
     }
 
     /**
@@ -47,15 +34,7 @@ class Constraints {
     })
     public static range(minVal: number, maxVal: number) {
         throwOnFalse(minVal <= maxVal, `invalid input for range ${minVal}-${maxVal}`);
-
-        return (target: any, fieldName: string) => {
-            Reflect.defineMetadata("range", {
-                validator: (val: number) => {
-                    return minVal <= val && val <= maxVal;
-                },
-                message: `value must be between ${minVal} and ${maxVal}`,
-            }, target, fieldName);
-        };
+        return decoratorFnFromValidator(numValidators.range(minVal, maxVal));
     }
 }
 

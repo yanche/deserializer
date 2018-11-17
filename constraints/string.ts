@@ -1,4 +1,5 @@
-import { forType, ConstraintHandler } from "./common";
+import { forType, ConstraintValidator, decoratorFnFromValidator } from "./common";
+import * as stringValidators from "../validators/string";
 
 class Constraints {
     /**
@@ -8,12 +9,7 @@ class Constraints {
         type: String,
     })
     public static nonEmptyString(target: any, fieldName: string) {
-        Reflect.defineMetadata("nonEmptyString", <ConstraintHandler>{
-            validator: (val: string) => {
-                return val.trim().length > 0;
-            },
-            message: "value must be non empty string",
-        }, target, fieldName);
+        Reflect.defineMetadata(stringValidators.nonEmptyString.name, stringValidators.nonEmptyString, target, fieldName);
     }
 }
 

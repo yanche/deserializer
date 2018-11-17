@@ -1,11 +1,19 @@
 import { typeMetadataKey, throwOnFalse, getPrimitiveTypeName } from "../common";
 import { field } from "./others";
 
-export type ConstraintHandler = {
+export type ConstraintValidator = {
+    // the name of validator, will be used as metadata key
+    name: string;
     // to process the constraint, validate the input value
-    validator: (val: any) => boolean;
+    validate: (val: any) => boolean;
     // error message & hint to pass the validation
     message: string;
+}
+
+export function decoratorFnFromValidator(validator: ConstraintValidator) {
+    return (target: any, fieldName: string) => {
+        Reflect.defineMetadata(validator.name, validator, target, fieldName);
+    };
 }
 
 /**
