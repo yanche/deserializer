@@ -1,7 +1,7 @@
 
 import "reflect-metadata";
 import { optionalFieldMetadataKey, OptionalFieldMetadata, fieldsMetadataKey, typeMetadataKey, throwOnFalse, flatten, getPrimitiveTypeName } from "./common";
-import { isConstraintValidator } from "./constraints";
+import { ConstraintValidator } from "./constraints/common";
 
 export function deserialize<T>(json: { [key: string]: any }, ctor: new () => T): T {
     const innerResult = _deserialize(json, ctor);
@@ -139,3 +139,7 @@ function fieldErrorToStringLines(fieldErrors: FieldErrors): string[] {
 }
 
 const indent = "    ";
+
+function isConstraintValidator(val: any): val is ConstraintValidator {
+    return val && val.validator instanceof Function && val.validator.length === 1 && typeof val.message === "string";
+}

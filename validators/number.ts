@@ -1,4 +1,4 @@
-import { ConstraintValidator } from "../constraints";
+import { ConstraintValidator } from "../constraints/common";
 
 export function range(minVal: number, maxVal: number): ConstraintValidator {
     return {
