@@ -29,3 +29,11 @@ export function min(minVal: number): ConstraintValidator {
         message: `value must be greater than or equal to ${minVal}`,
     };
 }
+
+export const safeInt: ConstraintValidator = {
+    name: `safeInt`,
+    validate: (val: number) => {
+        return Number.isSafeInteger(val);
+    },
+    message: `value must be a safe integer, defined with Number.isSafeInteger`,
+};

@@ -36,6 +36,18 @@ class Constraints {
         throwOnFalse(minVal <= maxVal, `invalid input for range ${minVal}-${maxVal}`);
         return decoratorFnFromValidator(numValidators.range(minVal, maxVal));
     }
+
+    /**
+     * To mark the number field as a safe integer.
+     */
+    @forType({
+        type: Number,
+    })
+    public static safeInt() {
+        return (target: any, fieldName: string) => {
+            Reflect.defineMetadata(numValidators.safeInt.name, numValidators.safeInt, target, fieldName);
+        };
+    }
 }
 
 export const range = Constraints.range;
