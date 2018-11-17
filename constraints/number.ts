@@ -53,3 +53,4 @@ class Constraints {
 export const range = Constraints.range;
 export const min = Constraints.min;
 export const max = Constraints.max;
+export const safeInt = Constraints.safeInt;
