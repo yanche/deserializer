@@ -43,10 +43,8 @@ class Constraints {
     @forType({
         type: Number,
     })
-    public static safeInt() {
-        return (target: any, fieldName: string) => {
-            Reflect.defineMetadata(numValidators.safeInt.name, numValidators.safeInt, target, fieldName);
-        };
+    public static safeInt(target: any, fieldName: string) {
+        Reflect.defineMetadata(numValidators.safeInt.name, numValidators.safeInt, target, fieldName);
     }
 }
 
