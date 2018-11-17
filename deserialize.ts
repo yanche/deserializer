@@ -141,5 +141,5 @@ function fieldErrorToStringLines(fieldErrors: FieldErrors): string[] {
 const indent = "    ";
 
 function isConstraintValidator(val: any): val is ConstraintValidator {
-    return val && val.validator instanceof Function && val.validator.length === 1 && typeof val.message === "string";
+    return val && val.validate instanceof Function && val.validate.length === 1 && typeof val.message === "string";
 }

@@ -31,9 +31,9 @@ export function min(minVal: number): ConstraintValidator {
 }
 
 export const safeInt: ConstraintValidator = {
-    name: `safeInt`,
+    name: "safeInt",
     validate: (val: number) => {
         return Number.isSafeInteger(val);
     },
-    message: `value must be a safe integer, defined with Number.isSafeInteger`,
+    message: `value must be a safe integer, defined by Number.isSafeInteger`,
 };

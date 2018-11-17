@@ -1,6 +1,6 @@
 
 import { fromObject } from "./index";
-import { nonEmptyString, range, field, optional } from "./constraints";
+import { nonEmptyString, range, field, optional, safeInt } from "./constraints";
 
 
 class Config2 {
@@ -13,6 +13,7 @@ class Config2 {
 class Config {
     @nonEmptyString
     public readonly field1: string;
+    @safeInt
     @range(2, 10)
     public readonly field2: number;
     @field
@@ -27,13 +28,13 @@ class Config {
 }
 
 const result = fromObject<Config>({
-    field1: "a",
-    field2: 2,
+    field1: "",
+    field2: 2.5,
     field3: true,
     field4: 1,
     embededField: {
         field1: "a",
-        field2: 3.5,
+        field2: 35,
     },
     optNoDefault: "asd",
     optDefault: 13
