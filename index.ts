@@ -1,6 +1,6 @@
 
-import { deserialize } from "./deserialize";
-import * as constraints from "./constraints";
+import { deserialize } from "./src/deserialize";
+import * as constraints from "./src/constraints";
 
 export function fromObject<T>(obj: { [key: string]: any }, ctor: new () => T): T {
     return deserialize<T>(obj, ctor);
