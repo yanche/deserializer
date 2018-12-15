@@ -1,4 +1,5 @@
-// import { ConstraintValidator } from "../constraints/common";
+
+import { ConstraintValidator } from "../constraints/common";
 
 export const nonEmptyString = {
     name: "nonEmptyString",
@@ -7,3 +8,13 @@ export const nonEmptyString = {
     },
     message: "value must be non empty string",
 };
+
+export function regex(regex: RegExp): ConstraintValidator {
+    return {
+        name: `regex-${regex.source}`,
+        validate: (val: string) => {
+            return regex.test(val);
+        },
+        message: `value must match regex: ${regex.source}`,
+    };
+}
