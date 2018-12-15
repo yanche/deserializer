@@ -18,3 +18,11 @@ export function regex(regex: RegExp): ConstraintValidator {
         message: `value must match regex: ${regex.source}`,
     };
 }
+
+export const noExtraSpace = {
+    name: "noExtraSpace",
+    validate: (val: string) => {
+        return val.trim().length === val.length;
+    },
+    message: "value must be string without leading nor trailing space",
+};

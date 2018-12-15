@@ -22,7 +22,18 @@ class Constraints {
     public static regex(regex: RegExp) {
         return decoratorFnFromValidator(stringValidators.regex(regex));
     }
+
+    /**
+     * To mark the string field as a string without leading or trailing space.
+     */
+    @forType({
+        type: String,
+    })
+    public static noExtraSpace(target: any, fieldName: string) {
+        Reflect.defineMetadata(stringValidators.noExtraSpace.name, stringValidators.noExtraSpace, target, fieldName);
+    }
 }
 
 export const nonEmptyString = Constraints.nonEmptyString;
 export const regex = Constraints.regex;
+export const noExtraSpace = Constraints.noExtraSpace;
