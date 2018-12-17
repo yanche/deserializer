@@ -8,8 +8,8 @@ export type OptionalFieldMetadata = {
     defaultVal?: any;
 }
 
-export function throwOnFalse(val: boolean, msg: string) {
-    if (!val) {
+export function throwIf(shouldThrow: boolean, msg: string) {
+    if (shouldThrow) {
         throw new Error(msg);
     }
 }

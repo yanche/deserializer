@@ -1,4 +1,4 @@
-import { typeMetadataKey, throwOnFalse, getPrimitiveTypeName } from "../common";
+import { typeMetadataKey, throwIf, getPrimitiveTypeName } from "../common";
 import { field } from "./others";
 
 export type ConstraintValidator = {
@@ -53,7 +53,7 @@ function proxyDecoratorFnToCheckType(originalDecoratorFn: (target: any, fieldNam
         // call the base "field" decorator, to register field
         field(target, fieldName);
         // check validator availability
-        throwOnFalse(Reflect.getMetadata(typeMetadataKey, target, fieldName) === expectedType, `constraint "${constraintName}" can only apply to field type: ${getPrimitiveTypeName(expectedType) || expectedType.name}`);
+        throwIf(Reflect.getMetadata(typeMetadataKey, target, fieldName) !== expectedType, `constraint "${constraintName}" can only apply to field type: ${getPrimitiveTypeName(expectedType) || expectedType.name}`);
         // apply validator
         return originalDecoratorFn(target, fieldName);
     }

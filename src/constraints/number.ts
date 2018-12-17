@@ -1,5 +1,4 @@
 import { forType, decoratorFnFromValidator } from "./common";
-import { throwOnFalse } from "../common";
 import * as numValidators from "../validators/number";
 
 class Constraints {
@@ -33,7 +32,6 @@ class Constraints {
         isFactory: true,
     })
     public static range(minVal: number, maxVal: number) {
-        throwOnFalse(minVal <= maxVal, `invalid input for range ${minVal}-${maxVal}`);
         return decoratorFnFromValidator(numValidators.range(minVal, maxVal));
     }
 

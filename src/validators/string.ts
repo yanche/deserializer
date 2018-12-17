@@ -1,5 +1,6 @@
 
 import { ConstraintValidator } from "../constraints/common";
+import { throwIf } from "../common";
 
 export const nonEmptyString = {
     name: "nonEmptyString",
@@ -26,3 +27,15 @@ export const noExtraSpace = {
     },
     message: "value must be string without leading nor trailing space",
 };
+
+export function lengthRange(min: number, max: number): ConstraintValidator {
+    throwIf(min > max, `invalid input for lengthRange ${min}-${max}`);
+
+    return {
+        name: `lengthRange-${min}-${max}`,
+        validate: (val: string) => {
+            return val.length >= min && val.length <= max;
+        },
+        message: `value length must between ${min} and ${max}`,
+    };
+}

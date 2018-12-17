@@ -1,6 +1,9 @@
 import { ConstraintValidator } from "../constraints/common";
+import { throwIf } from "../common";
 
 export function range(minVal: number, maxVal: number): ConstraintValidator {
+    throwIf(minVal > maxVal, `invalid input for range ${minVal}-${maxVal}`);
+    
     return {
         name: `range-${minVal}-${maxVal}`,
         validate: (val: number) => {

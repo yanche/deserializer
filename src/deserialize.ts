@@ -1,6 +1,6 @@
 
 import "reflect-metadata";
-import { optionalFieldMetadataKey, OptionalFieldMetadata, fieldsMetadataKey, typeMetadataKey, throwOnFalse, flatten, getPrimitiveTypeName } from "./common";
+import { optionalFieldMetadataKey, OptionalFieldMetadata, fieldsMetadataKey, typeMetadataKey, throwIf, flatten, getPrimitiveTypeName } from "./common";
 import { ConstraintValidator } from "./constraints/common";
 
 export function deserialize<T>(json: { [key: string]: any }, ctor: new () => T): T {
@@ -16,8 +16,8 @@ function _deserialize<T>(json: { [key: string]: any }, ctor: new () => T): {
     fieldErrors: FieldErrors[];
     result: T;
 } {
-    throwOnFalse(ctor.length === 0, "constructor must takes no input");
-    throwOnFalse(json instanceof Object, "json input must be an object or array");
+    throwIf(ctor.length !== 0, "constructor must takes no input");
+    throwIf(!(json instanceof Object), "json input must be an object or array");
 
     const result = new ctor();
     // get all fields that needs to be deserialized and validated

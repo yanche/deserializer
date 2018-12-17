@@ -32,8 +32,20 @@ class Constraints {
     public static noExtraSpace(target: any, fieldName: string) {
         Reflect.defineMetadata(stringValidators.noExtraSpace.name, stringValidators.noExtraSpace, target, fieldName);
     }
+
+    /**
+     * To mark the string field as a string between given length.
+     */
+    @forType({
+        type: String,
+        isFactory: true,
+    })
+    public static lengthRange(min: number, max: number) {
+        return decoratorFnFromValidator(stringValidators.lengthRange(min, max));
+    }
 }
 
 export const nonEmptyString = Constraints.nonEmptyString;
 export const regex = Constraints.regex;
 export const noExtraSpace = Constraints.noExtraSpace;
+export const lengthRange = Constraints.lengthRange;
