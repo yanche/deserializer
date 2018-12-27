@@ -1,4 +1,5 @@
 import { typeMetadataKey, fieldsMetadataKey, getPrimitiveTypeName, optionalFieldMetadataKey, OptionalFieldMetadata } from "../common";
+import * as otherValidators from "../validators/others";
 
 export function field(target: any, fieldName: string) {
     // check ts option to emit metadata is on
@@ -41,5 +42,27 @@ export function optional(defaultVal?: any) {
             hasDefaultVal: hasDefault,
             defaultVal: defaultVal,
         }, target, fieldName);
+    };
+}
+
+/**
+ * To mark the field only accepts certain values.
+ */
+export function whitelist<T>(allowedValues: T[]) {
+    const validator = otherValidators.whitelist(allowedValues);
+    return (target: any, fieldName: string) => {
+        field(target, fieldName);
+        Reflect.defineMetadata(validator.name, validator, target, fieldName);
+    };
+}
+
+/**
+ * To mark the field does not accept certain values.
+ */
+export function blacklist<T>(bannedValues: T[]) {
+    const validator = otherValidators.blacklist(bannedValues);
+    return (target: any, fieldName: string) => {
+        field(target, fieldName);
+        Reflect.defineMetadata(validator.name, validator, target, fieldName);
     };
 }

@@ -1,4 +1,4 @@
-import { forType, ConstraintValidator, decoratorFnFromValidator } from "./common";
+import { forType, decoratorFnFromValidator } from "./common";
 import * as stringValidators from "../validators/string";
 
 class Constraints {
