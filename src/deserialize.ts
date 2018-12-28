@@ -107,8 +107,15 @@ function validateValueType(fieldRawVal: any, fieldType: any): {
         } else {
             return { fieldVal: fieldRawVal };
         }
-    } else if ([Object, Array, Function, undefined].some(t => t === fieldType)) {
-        throw new Error("defensive code, impossible code path, unallowed fields: plain-object/array/function/void should already been checked at decorating stage");
+    } else if (fieldType === Object) {
+        // plain-object
+        if (fieldRawVal instanceof Object) {
+            return { fieldVal: fieldRawVal };
+        } else {
+            return { error: `value type is incorrect, object is expected` };
+        }
+    } else if ([Array, Function, undefined].some(t => t === fieldType)) {
+        throw new Error("defensive code, impossible code path, unallowed fields: array/function/void should already been checked at decorating stage");
     } else {
         // field type is object, do recursive deserialization
         if (fieldRawVal instanceof Object) {

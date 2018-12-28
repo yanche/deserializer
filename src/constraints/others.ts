@@ -9,8 +9,8 @@ export function field(target: any, fieldName: string) {
 
     // check type field is acceptable (array & function is not allowed at this moment)
     const fieldType = Reflect.getOwnMetadata(typeMetadataKey, target, fieldName);
-    if ([Object, Array, Function, undefined].some(t => t === fieldType)) {
-        throw new Error(`${fieldName}: plain-object, array, function and void are not allowed at this moment as field type`);
+    if ([Array, Function, undefined].some(t => t === fieldType)) {
+        throw new Error(`${fieldName}: array, function and void are not allowed at this moment as field type`);
     }
 
     // put the metadata class_fields, so that we have a list of validate-able fields
