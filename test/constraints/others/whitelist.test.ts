@@ -26,6 +26,14 @@ describe("whitelist decorator test", () => {
             fromObject({ field1: "b" }, C);
         });
 
+        assert.throw(() => {
+            fromObject({ field1: null }, C);
+        });
+
+        assert.throw(() => {
+            fromObject({}, C);
+        });
+
         const c = fromObject({ field1: "a" }, C);
         assert.strictEqual(c.field1, "a");
 

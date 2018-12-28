@@ -1,5 +1,5 @@
 
-import { constraints, fromObject } from "../../index";
+import { constraints, fromObject } from "../index";
 import { assert } from "chai";
 
 describe("plain object decorator test", () => {
