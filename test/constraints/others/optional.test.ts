@@ -109,6 +109,59 @@ describe("optional decorator test", () => {
         assert.deepStrictEqual(Object.getOwnPropertyNames(c), ["optional1", "optional2", "optional3"]);
     });
 
+    it("should skip other validation if default value not provided", () => {
+        class C {
+            @constraints.whitelist(["a", "b"])
+            @constraints.optional()
+            optional4: string;
+            @constraints.whitelist([true])
+            @constraints.optional()
+            optional5: boolean;
+            @constraints.whitelist([1, 2, 3])
+            @constraints.optional()
+            optional6: number;
+        }
+
+        const c = fromObject({}, C);
+        assert.strictEqual(c.optional4, undefined);
+        assert.strictEqual(c.optional5, undefined);
+        assert.strictEqual(c.optional6, undefined);
+        assert.deepStrictEqual(Object.getOwnPropertyNames(c), []);
+    });
+
+    it("should apply other validation if default value is provided", () => {
+        class C1 {
+            @constraints.nonEmptyString
+            @constraints.optional("")
+            optional1: string;
+        }
+
+        class C2 {
+            @constraints.blacklist([false])
+            @constraints.optional(false)
+            optional2: boolean;
+        }
+
+        class C3 {
+            @constraints.min(5)
+            @constraints.optional(1)
+            optional3: number;
+        }
+
+        assert.throw(() => fromObject({}, C1));
+        assert.throw(() => fromObject({}, C2));
+        assert.throw(() => fromObject({}, C3));
+
+        const c1 = fromObject({ optional1: "a" }, C1);
+        assert.strictEqual(c1.optional1, "a");
+
+        const c2 = fromObject({ optional2: true }, C2);
+        assert.strictEqual(c2.optional2, true);
+
+        const c3 = fromObject({ optional3: 6 }, C3);
+        assert.strictEqual(c3.optional3, 6);
+    });
+
     it("sub-class field default value works as expect", () => {
         class SubC {
             @constraints.field
